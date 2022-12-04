@@ -4,7 +4,6 @@ using Domain.Entities;
 using Infrastructure.Configuration;
 using Microsoft.Extensions.Options;
 using Npgsql;
-using Z.Dapper.Plus;
 
 namespace Infrastructure.Repositories;
 
@@ -45,7 +44,7 @@ public class ContactsRepository : IContactsRepository
         }
         catch
         {
-            transaction.Rollback();
+            await transaction.RollbackAsync();
             throw;
         }
         finally
@@ -62,17 +61,17 @@ public class ContactsRepository : IContactsRepository
 
         try
         {
-            
+
             string sql = "DELETE FROM contacts WHERE id = @id RETURNING *";
             await connection.QuerySingleAsync<Contact>(sql, new { id }, transaction: transaction);
-            
+
             await transaction.CommitAsync();
 
             return true;
         }
         catch
         {
-            transaction.Rollback();
+            await transaction.RollbackAsync();
             throw new Exception("No contact found with such id");
         }
         finally
@@ -82,23 +81,106 @@ public class ContactsRepository : IContactsRepository
 
     }
 
-    public Task<string> AddMobileNumberToContact(string mobileNumber)
+    public async Task<ContactNumber> AddMobileNumberToContact(ContactNumber contactNumber)
     {
-        throw new NotImplementedException();
+        var connection = new NpgsqlConnection(_connectionStrings.PhoneNumbers);
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
+
+        try
+        {
+            string sql = "INSERT INTO contact_numbers (contact_id, number) VALUES (@cid, @nmb) RETURNING *;";
+            var args = new { cid = contactNumber.Contact_Id, nmb = contactNumber.Number };
+            var newNumber = await connection.QuerySingleAsync<ContactNumber>(sql, args, transaction);
+
+            await transaction.CommitAsync();
+
+            return newNumber;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw new Exception("No contact found with such id");
+        }
+        finally
+        {
+            await connection.CloseAsync();
+        }
     }
 
-    public Task<string> DeleteMobileNumberFromContact(string mobileNumber)
+    public async Task<bool> DeleteMobileNumberFromContact(int id, string mobileNumber)
     {
-        throw new NotImplementedException();
+        var connection = new NpgsqlConnection(_connectionStrings.PhoneNumbers);
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
+
+        try
+        {
+            string sql = "DELETE FROM contact_numbers WHERE contact_id = @id and number = @number RETURNING *;";
+            var args = new { id, number = mobileNumber };
+            await connection.QuerySingleAsync<ContactNumber>(sql, args, transaction: transaction);
+
+            await transaction.CommitAsync();
+
+            return true;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw new Exception($"No record with Id {id} or not such number with given id");
+        }
+        finally
+        {
+            await connection.CloseAsync();
+        }
     }
 
-    public Task<Contact> GetContactByMobileNumber(string mobileNumber)
+    public async Task<Contact> UpdateContact(Contact contact)
     {
-        throw new NotImplementedException();
+        var connection = new NpgsqlConnection(_connectionStrings.PhoneNumbers);
+        await connection.OpenAsync();
+        using var transaction = await connection.BeginTransactionAsync();
+
+        try
+        {
+            string sql = "UPDATE contacts SET name = @nm, surname = @snm WHERE id = @id RETURNING *;";
+            var args = new { nm = contact.Name, snm = contact.Surname, id = contact.Id };
+            var result = await connection.QuerySingleAsync<Contact>(sql, args, transaction: transaction);
+
+            await transaction.CommitAsync();
+            return result;
+        }
+        catch
+        {
+            await transaction.CommitAsync();
+            throw;
+        }
+        finally
+        {
+            await connection.CloseAsync();
+        }
     }
 
-    public Task<Contact> UpdateContact(Contact contact)
+    public async Task<Contact> GetContactByMobileNumber(string mobileNumber)
     {
-        throw new NotImplementedException();
+        var connection = new NpgsqlConnection(_connectionStrings.PhoneNumbers);
+        int contactId = default;
+
+        try
+        {
+            string sql = "SELECT contact_id FROM contact_numbers WHERE number = @nmb";
+            contactId = await connection.QuerySingleAsync<int>(sql, new { nmb = mobileNumber });
+
+            sql = "SELECT * FROM contacts WHERE id = (" +
+                     "SELECT contact_id FROM contact_numbers cn WHERE cn.contact_id = @cid GROUP BY cn.contact_id" +
+                  ")";
+            var contact = await connection.QuerySingleAsync<Contact>(sql, new { cid = contactId });
+
+            return contact;
+        }
+        catch
+        {
+            throw new Exception($"Not such number for contactId {contactId}");
+        }
     }
 }

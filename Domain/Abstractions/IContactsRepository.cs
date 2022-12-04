@@ -8,8 +8,8 @@ public interface IContactsRepository
     Task<Contact> UpdateContact(Contact contact);
     Task<bool> DeleteContact(int id);
 
-    Task<string> AddMobileNumberToContact(string mobileNumber);
-    Task<string> DeleteMobileNumberFromContact(string mobileNumber);
+    Task<ContactNumber> AddMobileNumberToContact(ContactNumber contactNumber);
+    Task<bool> DeleteMobileNumberFromContact(int id, string mobileNumber);
 
     Task<Contact> GetContactByMobileNumber(string mobileNumber);
 }
