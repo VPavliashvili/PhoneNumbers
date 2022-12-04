@@ -16,16 +16,11 @@ public class UsersRepository : IUsersRepository
         _connectionStrings = options.Value;
     }
 
-    public Task<IEnumerable<User>> GetAllUsers()
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<User> GetUserByUsername(string userName)
     {
         var connection = new NpgsqlConnection(_connectionStrings.PhoneNumbers);
 
-        string sql = "SELECT * FROM users u WHERE u.username = @usr";
+        string sql = "SELECT * FROM users u WHERE u.username = @usr;";
         var args = new { usr = userName };
 
         try

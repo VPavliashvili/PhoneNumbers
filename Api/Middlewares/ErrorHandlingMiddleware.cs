@@ -23,7 +23,7 @@ public class ErrorHandlingMiddleware : IMiddleware
         catch (Exception ex)
         {
             await HandleException(context, ex, StatusCodes.Status500InternalServerError, 
-                        "Server error", "Server error detected", "Internal server error occured");
+                        "Server error", "Server error detected", ex.Message);
         }
     }
 
@@ -35,8 +35,8 @@ public class ErrorHandlingMiddleware : IMiddleware
         var problem = new ProblemDetails()
         {
             Status = statusCode,
-            Type = "Client error",
-            Title = "Client error detected",
+            Type = type,
+            Title = title,
             Detail = details,
         };
 

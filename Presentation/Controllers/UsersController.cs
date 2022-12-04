@@ -41,7 +41,7 @@ public class UsersController : ControllerBase
 
         _logger.LogInformation($"for {nameof(Register)} with unicId -> {_unicId}, user registered successfully, id -> {result}");
 
-        return CreatedAtAction(nameof(Register), new {result}, result);
+        return Created("/Users/Register", new {result});
     }
 
     [HttpPost]

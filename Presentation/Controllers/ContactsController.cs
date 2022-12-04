@@ -1,12 +1,15 @@
-﻿using Infrastructure.Configuration;
+﻿using Application.Contacts.Commands.AddNew;
+using Application.Contacts.Commands.Delete;
+using Infrastructure.Configuration;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace Presentation.Controllers;
 
 [ApiController]
-[Route("[controller]/[action]")]
+[Route("[controller]")]
 public class ContactsController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -20,12 +23,34 @@ public class ContactsController : ControllerBase
         _unicId = loggingId.UnicId;
     }
 
-    //[HttpPost]
-    //public Task<IActionResult> AddContact(AddContactCommandRequest request)
-    //{
-    //    _logger.LogInformation($"{nameof(AddContact)} request with unicId -> {_unicId}, body -> {{@request}}", request);
+    [HttpPost]
+    [Authorize]
+    [Route("New")]
+    public async Task<IActionResult> AddNewContact(AddContactCommandRequest request)
+    {
+        _logger.LogInformation($"{nameof(AddNewContact)} request with unicId -> {_unicId}, body -> {{@request}}", request);
 
-    //    _logger.LogInformation($"for {nameof(AddContact)} with unicId -> {_unicId}, new contact inserted successfully, id -> {result}");
-    //}
+        var command = new AddContactCommand(request);
+        var result = await _mediator.Send(command);
+
+        _logger.LogInformation($"for {nameof(AddNewContact)} with unicId -> {_unicId}, new contact inserted successfully, id -> {result}");
+
+        return Created("/Contacts/New", result);
+    }
+
+    [HttpDelete]
+    [Authorize]
+    [Route("Delete")]
+    public async Task<IActionResult> DeleteContact(DeleteContactCommandRequest request)
+    {
+        _logger.LogInformation($"{nameof(DeleteContact)} request with unicId -> {_unicId}, body -> {{@request}}", request);
+
+        var command = new DeleteContactCommand(request);
+        var result = await _mediator.Send(command);
+
+        _logger.LogInformation($"for {nameof(DeleteContact)} with unicId -> {_unicId}, contact deleted successfully with id -> {request.Id}");
+
+        return NoContent();
+    }
 
 }
