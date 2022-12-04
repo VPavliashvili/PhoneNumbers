@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using Domain.Abstractions;
-using Domain.Configuration;
 using Domain.Entities;
+using Infrastructure.Configuration;
 using Microsoft.Extensions.Options;
 using Npgsql;
 

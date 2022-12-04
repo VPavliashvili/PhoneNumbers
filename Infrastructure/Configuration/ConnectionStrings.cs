@@ -1,4 +1,4 @@
-﻿namespace Domain.Configuration;
+﻿namespace Infrastructure.Configuration;
 
 public class ConnectionStrings
 {

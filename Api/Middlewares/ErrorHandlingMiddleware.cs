@@ -1,6 +1,5 @@
-﻿using Api.Configuration;
+﻿using Infrastructure.Configuration;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace Api.Middlewares;
 
@@ -9,7 +8,7 @@ public class ErrorHandlingMiddleware : IMiddleware
     private readonly ILogger<ErrorHandlingMiddleware> _logger;
     private readonly string _unicId;
 
-    public ErrorHandlingMiddleware(ILogger<ErrorHandlingMiddleware> logger, LoggingId loggingId)
+    public ErrorHandlingMiddleware(ILogger<ErrorHandlingMiddleware> logger, LoggingIdWrapper loggingId)
     {
         _logger = logger;
         _unicId = loggingId.UnicId;

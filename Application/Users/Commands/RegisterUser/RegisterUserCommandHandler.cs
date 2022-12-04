@@ -10,7 +10,9 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, i
     private readonly IPasswordSecurityService _passwordSecurity;
     private readonly IUsersRepository _usersRepository;
 
-    public RegisterUserCommandHandler(IPasswordSecurityService passwordSecurity, IUsersRepository usersRepository)
+    public RegisterUserCommandHandler(
+                    IPasswordSecurityService passwordSecurity,
+                    IUsersRepository usersRepository)
     {
         _passwordSecurity = passwordSecurity;
         _usersRepository = usersRepository;
@@ -19,7 +21,6 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, i
     public async Task<int> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
         var request = command.Request;
-
         var hashedPassword = _passwordSecurity.GetHashedPassword(request.Password, out string salt);
 
         var user = new User()
