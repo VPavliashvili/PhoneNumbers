@@ -32,7 +32,7 @@ public class ContactsController : ControllerBase
     [Route("Contact")]
     [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> AddNewContact(AddContactCommandRequest request)
     {
         _logger.LogInformation($"{nameof(AddNewContact)} request with unicId -> {_unicId}, body -> {{@request}}", request);
@@ -50,7 +50,7 @@ public class ContactsController : ControllerBase
     [Route("Contact/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteContact(int id)
     {
         var request = new DeleteContactCommandRequest(id);
@@ -70,7 +70,7 @@ public class ContactsController : ControllerBase
     [Route("Contact/{id}/New/{number}")]
     [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> AddNewMobileNumber(int id, string number)
     {
         var request = new AddContactNumberCommandRequest(id, number);
@@ -90,7 +90,7 @@ public class ContactsController : ControllerBase
     [Route("Contact/{id}/{number}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteMobileNumber(int id, string number)
     {
         var request = new DeleteContactNumberCommandRequest(id, number);
@@ -109,8 +109,8 @@ public class ContactsController : ControllerBase
     [Authorize]
     [Route("Contact/Update")]
     [ProducesResponseType(typeof(UpdateContactCommandResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateContact(UpdateContactCommandRequest request)
     {
         _logger.LogInformation($"{nameof(UpdateContact)} request with unicId -> {_unicId}, body -> {{@request}}", request);
@@ -126,8 +126,8 @@ public class ContactsController : ControllerBase
     [HttpGet]
     [Route("Contacts/{number}")]
     [ProducesResponseType(typeof(GetContactByNumberQueryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> FindNumberOwner(string number)
     {
         var request = new GetContactByNumberQuery(number);
