@@ -21,11 +21,6 @@ public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, string>
 
         var user = await _usersRepository.GetUserByUsername(request.Username);
 
-        if (user == null)
-        {
-            throw new Exception($"User with name {request.Username} does not exist");
-        }
-
         var storedHash = user.Password;
         var storedSalt = user.Salt;
         var inputPassword = request.Password;

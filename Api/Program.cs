@@ -1,4 +1,5 @@
 using Api.Configuration;
+using Api.Middlewares;
 using Application.Abstractions;
 using Domain.Abstractions;
 using Infrastructure.Repositories;
@@ -23,8 +24,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IPasswordSecurityService, PasswordSecurityService>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+builder.Services.AddScoped<LoggingId>();
+
+builder.Services.AddTransient<ErrorHandlingMiddleware>();
 
 builder.Services.ConfigureOptions<ConnectionStringsOptionsSetup>();
+
 
 var app = builder.Build();
 
@@ -39,6 +44,8 @@ app.UseAuthentication();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseEndpoints(endpoints => endpoints.MapControllers());
 
