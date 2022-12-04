@@ -180,7 +180,7 @@ public class ContactsRepository : IContactsRepository
         }
         catch
         {
-            throw new Exception($"Not such number for contactId {contactId}");
+            throw new Exception($"There is no {mobileNumber} saved in database for any user");
         }
     }
 }
